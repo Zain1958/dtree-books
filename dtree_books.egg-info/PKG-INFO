@@ -1,3 +1,18 @@
+Metadata-Version: 2.4
+Name: dtree-books
+Version: 0.1.0
+Summary: Book saleability classification pipeline
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: scikit-learn
+Requires-Dist: pandas
+Requires-Dist: numpy
+Requires-Dist: joblib
+
+# Random Forest Classification: Book Saleability Prediction Pipeline
+
+## 📝 Introduction
+
 An end-to-end Machine Learning pipeline that predicts whether a book is **saleable** (free, paid, or not-for-sale) based on metadata extracted via the Google Books API. Built with Python, Scikit-Learn, and Pandas, following modular, production-ready ML engineering practices.
 
 ---
@@ -16,7 +31,7 @@ Publishers and book distributors need data-driven insights into pricing and mark
 
 ## 📊 Exploratory Data Analysis & Insights
 
-| Feature Distribution | Maturity Rating vs Category | Page Count vs Saleability |
+| Feature Distribution | Saleability vs Category and Publishers | Page Count vs Saleability |
 | :---: | :---: | :---: |
 | ![Histograms](images/histogram_plots.png) | ![Crosstab](images/crosstab_plots.png) | ![Scatter Plot](images/scatter_plot.png) |
 | *Distribution of numerical attributes (page count, author count, publish year)* | *Maturity distribution across primary book categories* | *Correlation between book length and saleability status* |
@@ -27,22 +42,25 @@ Publishers and book distributors need data-driven insights into pricing and mark
 
 ```text
 Raw API Data ──> Ingestion & Normalization ──> Custom Transformers ──> ColumnTransformer ──> GridSearchCV (RandomForest) ──> Serialized Pipeline (.pkl)
-Ingestion Layer: Extracts book metadata from the Google Books API into structured CSV tables (books_data_1.csv, books_data_2.csv).
+```
 
-Preprocessing Layer:
+**Ingestion Layer:** Extracts book metadata from the Google Books API into structured CSV tables (books_data_1.csv, books_data_2.csv).
 
-Numerical Features (pageCount, authorCount, publishYear): Handled via SimpleImputer(strategy="median") and StandardScaler().
+**Preprocessing Layer:**
 
-High-Cardinality Categoricals (publisher): Filtered via custom TopPublishersEncoder to keep the top N publishers and group rare entries into "Other", followed by constant imputation and OrdinalEncoder.
+- Numerical Features (pageCount, authorCount, publishYear): Handled via SimpleImputer(strategy="median") and StandardScaler().
+- High-Cardinality Categoricals (publisher): Filtered via custom TopPublishersEncoder to keep the top N publishers and group rare entries into "Other", followed by constant imputation and OrdinalEncoder.
+- Categorical Features (category, maturityRating): Encoded using OrdinalEncoder.
 
-Categorical Features (category, maturityRating): Encoded using OrdinalEncoder.
+**Modeling Layer:** RandomForestClassifier optimized via GridSearchCV cross-validation.
 
-Modeling Layer: RandomForestClassifier optimized via GridSearchCV cross-validation.
+**Artifact Persistence:** The complete preprocessing and model pipeline is saved as models/book_saleability_rf_v1.pkl for one-call inference (pipeline.predict(raw_data)).
 
-Artifact Persistence: The complete preprocessing and model pipeline is saved as models/book_saleability_rf_v1.pkl for one-call inference (pipeline.predict(raw_data)).
+---
 
-📁 Repository Structure
-Plaintext
+## 📁 Repository Structure
+
+```
 dtree-books/
 │
 ├── data/
@@ -66,13 +84,22 @@ dtree-books/
 │   └── transformers.py               # Custom Scikit-Learn transformers
 │
 └── README.md
-🚀 Quickstart & Installation
-1. Clone the Repository
-Bash
+```
+
+---
+
+## 🚀 Quickstart & Installation
+
+### 1. Clone the Repository
+
+```bash
 git clone [https://github.com/your-username/dtree-books.git](https://github.com/your-username/dtree-books.git)
 cd dtree-books
-2. Create and Activate Virtual Environment
-Bash
+```
+
+### 2. Create and Activate Virtual Environment
+
+```bash
 # Windows
 python -m venv venv
 venv\\Scripts\\activate
@@ -80,21 +107,36 @@ venv\\Scripts\\activate
 # macOS / Linux
 python3 -m venv venv
 source venv/bin/activate
-3. Install Dependencies
-Bash
-pip install numpy pandas scikit-learn matplotlib seaborn joblib jupyter
-💻 Running Inference
-You can load and execute predictions on raw data using the exported pipeline in just a few lines:
+```
 
-Python
+### 3. Install Dependencies
+
+```bash
+pip install numpy pandas scikit-learn matplotlib seaborn joblib jupyter
+```
+
+---
+
+## 💻 Running Inference
+
+To see the complete end-to-end workflow and results, run the [data_training.ipynb](notebooks/data_training.ipynb) notebook. It includes exploratory data analysis, model training, hyperparameter tuning, and evaluation metrics.
+
+If you wish to make predictions on new data after running the notebook, you can add the following code snippet in a new cell at the bottom of the notebook and play around with the variables:
+
+```python
 import joblib
 import pandas as pd
+from pathlib import Path
 from src.transformers import TopPublishersEncoder
 
-# 1. Load the trained pipeline
-model_pipeline = joblib.load("models/book_saleability_rf_v1.pkl")
+# 1. Resolve path to project root, then down into models/
+ROOT_DIR = Path.cwd().parent
+MODEL_PATH = ROOT_DIR / "models" / "book_saleability_rf_v1.pkl"
 
-# 2. Sample raw book data
+# 2. Load the trained pipeline
+model_pipeline = joblib.load(MODEL_PATH)
+
+# 3. Sample raw book data
 sample_books = pd.DataFrame([
     {
         "publishYear": 2021,
@@ -106,17 +148,22 @@ sample_books = pd.DataFrame([
     }
 ])
 
+# 4. Predict saleability
+predictions = model_pipeline.predict(sample_books)
+print("Saleability Prediction:", predictions[0])
+
+
 # 3. Predict saleability
 predictions = model_pipeline.predict(sample_books)
 print("Saleability Prediction:", predictions[0])
-📈 Tech Stack
-Language: Python 3.10+
+```
 
-Data Manipulation & Analysis: Pandas, NumPy
+---
 
-Machine Learning: Scikit-Learn (Pipeline, ColumnTransformer, GridSearchCV, RandomForestClassifier)
+## 📈 Tech Stack
 
-Visualization: Matplotlib, Seaborn
-
-Model Serialization: Joblib
-"""
+- **Language:** Python 3.10+
+- **Data Manipulation & Analysis:** Pandas, NumPy
+- **Machine Learning:** Scikit-Learn (Pipeline, ColumnTransformer, GridSearchCV, RandomForestClassifier)
+- **Visualization:** Matplotlib, Seaborn
+- **Model Serialization:** Joblib
