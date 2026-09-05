@@ -35,7 +35,7 @@ with middle:
         form_values["publishYear"] = st.number_input("Enter the year the book was published: ",min_value=0)
         form_values["authorCount"] = st.number_input("Enter the number of authors the book has", min_value=1)
         form_values["pageCount"] = st.number_input("Enter the number of pages in the book", min_value=1)
-        form_values["publisher"] = st.selectbox(label="Select publisher: ", options=top_pub)
+        form_values["publisher"] = st.selectbox(label="Select publisher: ", options=(top_pub + ["Other"]))
         form_values["category"] = st.selectbox(label="Select category: ", options=categories)
         match st.radio(label="Select maturity rating", options=["Mature", "Not mature"]):
             case "Mature":
