@@ -141,10 +141,6 @@ sample_books = pd.DataFrame([
 predictions = model_pipeline.predict(sample_books)
 print("Saleability Prediction:", predictions[0])
 
-
-# 3. Predict saleability
-predictions = model_pipeline.predict(sample_books)
-print("Saleability Prediction:", predictions[0])
 ```
 
 ---

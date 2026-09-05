@@ -24,20 +24,25 @@ left, middle, right = st.columns([1,2,1])
 
 with middle:
     form_values = {
-        "year" : None,
-        "author": None,
-        "page": None,
+        "publishYear" : None,
+        "authorCount": None,
+        "pageCount": None,
         "publisher": None,
         "category": None,
-        "maturity": None
+        "maturityRating": None
     }
     with st.form(key="predictor"):
-        form_values["year"] = st.number_input("Enter the year the book was published: ",min_value=0)
-        form_values["author"] = st.number_input("Enter the number of authors the book has", min_value=1)
-        form_values["page"] = st.number_input("Enter the number of pages in the book", min_value=1)
+        form_values["publishYear"] = st.number_input("Enter the year the book was published: ",min_value=0)
+        form_values["authorCount"] = st.number_input("Enter the number of authors the book has", min_value=1)
+        form_values["pageCount"] = st.number_input("Enter the number of pages in the book", min_value=1)
         form_values["publisher"] = st.selectbox(label="Select publisher: ", options=top_pub)
         form_values["category"] = st.selectbox(label="Select category: ", options=categories)
-        form_values["maturity"] = st.radio(options=["Mature", "Not mature"])
+        match st.radio(label="Select maturity rating", options=["Mature", "Not mature"]):
+            case "Mature":
+                form_values["maturityRating"] = "MATURE"
+            case "Not mature":
+                form_values["maturityRating"] =  "NOT_MATURE"
+            
 
         submit_button = st.form_submit_button(label="Predict")
 
@@ -45,7 +50,9 @@ with middle:
             if not all(form_values.values()):
                 st.warning("Please full in all fields")
             else:
-                
+                sample_book = pd.DataFrame([form_values])
+                predictions = model.predict(sample_book)
+                st.write("Saleability Prediction:", predictions[0])
 
 
 

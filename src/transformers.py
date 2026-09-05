@@ -30,5 +30,6 @@ class TopPublishersEncoder(BaseEstimator, TransformerMixin):
             mask = (~series.isin(self.top_pub)) & (series.notna())
             series.loc[mask] = "Other"
             return series.to_numpy().reshape(-1, 1)
+    
     def get_feature_names_out(self, input_features=None):
         return input_features
