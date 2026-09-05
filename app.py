@@ -1,9 +1,18 @@
+import sys
+from pathlib import Path
+
+# Adds project root to Python search path
+sys.path.append(str(Path(__file__).resolve().parent))
+
+from src.transformers import TopPublishersEncoder
+
 from src.transformers import TopPublishersEncoder
 import streamlit as st
 import pandas as pd
 import joblib
 import time
 import os
+
 
 @st.cache_data
 def fetch_books_data():
